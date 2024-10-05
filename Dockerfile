@@ -1,17 +1,17 @@
 FROM alpine:3.20.3
 
 # TODO maybe use alpine directly instead? https://hub.docker.com/_/alpine
-# TODO maybe base on official dockerfile instead? https://github.com/nginxinc/docker-nginx/blob/6a4c0cb4ac7e53bbbe473df71b61a5bf9f95252f/mainline/debian/Dockerfile 
+# TODO maybe base on official dockerfile instead? https://github.com/nginxinc/docker-nginx/blob/6a4c0cb4ac7e53bbbe473df71b61a5bf9f95252f/mainline/debian/Dockerfile
 
 ENV NGINX_VERSION=1.27.1
 
-COPY . /tmp/nginx-joh
-
+COPY . /tmp/nginx-src
+h
 RUN \
   build_pkgs="build-base linux-headers openssl-dev pcre-dev wget zlib-dev" && \
   runtime_pkgs="ca-certificates openssl pcre zlib tzdata git" && \
   apk --no-cache add ${build_pkgs} ${runtime_pkgs} && \
-  cd /tmp/nginx-joh && \
+  cd /tmp/nginx-src && \
   rm -rf Makefile objs && \
   ./auto/configure \
     --prefix=/etc/nginx \
