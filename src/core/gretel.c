@@ -57,9 +57,7 @@ static uint64_t gretel_random64() {
 
 gretel_t gretel_random() {
     gretel_t res = {};
-    while (res.a == 0) { /* NOTE: special case */
-        res.a = gretel_random64();
-    }
+    res.a = GRETEL_A_USER;
     res.b = gretel_random64();
     res.c = gretel_random64();
     res.d = gretel_random64();
