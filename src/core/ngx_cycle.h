@@ -35,7 +35,6 @@ struct ngx_shm_zone_s {
     ngx_uint_t                noreuse;  /* unsigned  noreuse:1; */
 };
 
-
 struct ngx_cycle_s {
     void                  ****conf_ctx;
     ngx_pool_t               *pool;
@@ -56,6 +55,9 @@ struct ngx_cycle_s {
     ngx_queue_t               reusable_connections_queue;
     ngx_uint_t                reusable_connections_n;
     time_t                    connections_reuse_time;
+
+    gretel_t                  cycle_req_gretel;
+    gretel_t                  cycle_resp_gretel;
 
     ngx_array_t               listening;
     ngx_array_t               paths;

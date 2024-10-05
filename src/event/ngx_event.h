@@ -113,6 +113,9 @@ struct ngx_event_s {
 
     ngx_rbtree_node_t   timer;
 
+    gretel_t gretel_request;
+    gretel_t gretel_response;
+
     /* the posted queue */
     ngx_queue_t      queue;
 

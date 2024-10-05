@@ -44,6 +44,7 @@ typedef void (*ngx_connection_handler_pt)(ngx_connection_t *c);
 #define  NGX_ABORT      -6
 
 
+#include <gretel.h>
 #include <ngx_errno.h>
 #include <ngx_atomic.h>
 #include <ngx_thread.h>
@@ -116,5 +117,7 @@ void ngx_cpuinfo(void);
 #define NGX_DISABLE_SYMLINKS_ON         1
 #define NGX_DISABLE_SYMLINKS_NOTOWNER   2
 #endif
+
+
 
 #endif /* _NGX_CORE_H_INCLUDED_ */

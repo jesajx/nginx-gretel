@@ -1363,6 +1363,86 @@ ngx_http_process_request_uri(ngx_http_request_t *r)
 }
 
 
+static ngx_int_t gretel_parse_hex(u_char *start, u_char *end, uint64_t *res) {
+    u_char *p = start;
+    uint64_t x = 0;
+    while (p < end) {
+        u_char c = *p;
+        ngx_int_t d = 0;
+        if ('0' <= c && c < '9') {
+            d = (ngx_int_t)(c - (u_char)'0');
+        } else if ('a' <= c && c < 'f') {
+            d = (ngx_int_t)(c - (u_char)'a') + 10;
+        } else if ('A' <= c && c < 'F') {
+            d = (ngx_int_t)(c - (u_char)'A') + 10;
+        } else {
+            return 1;
+        }
+
+        x = 16*x + d;
+
+        ++p;
+    }
+
+    *res = x;
+    return 0;
+}
+
+static ngx_int_t gretel_parse_header_value(u_char *gretelstr_start, u_char *gretelstr_end, gretel_t *res) {
+
+    ngx_int_t hex_8bytes = 16;
+
+    u_char *gretel_d_end = gretelstr_end;
+    u_char *gretel_d_start = gretel_d_end - hex_8bytes;
+    if (gretel_d_start < gretelstr_start) {
+        return 1;
+    }
+
+    u_char *gretel_c_end = gretel_d_start;
+    u_char *gretel_c_start = gretel_c_end - hex_8bytes;
+    if (gretel_c_start < gretelstr_start) {
+        return 1;
+    }
+
+    u_char *gretel_b_end = gretel_c_start;
+    u_char *gretel_b_start = gretel_b_end - hex_8bytes;
+    if (gretel_b_start < gretelstr_start) {
+        return 1;
+    }
+
+    u_char *gretel_a_end = gretel_b_start;
+    u_char *gretel_a_start = gretel_a_end - hex_8bytes;
+    if (gretel_a_start < gretelstr_start) {
+        return 1;
+    }
+
+    /* TODO check bounds? clean up */
+
+    gretel_t tmp = {};
+
+    if (gretel_parse_hex(gretel_a_start, gretel_a_end, &tmp.a)) {
+        return 1;
+    }
+
+    if (gretel_parse_hex(gretel_b_start, gretel_b_end, &tmp.b)) {
+        return 1;
+    }
+
+    if (gretel_parse_hex(gretel_c_start, gretel_c_end, &tmp.c)) {
+        return 1;
+    }
+
+    if (gretel_parse_hex(gretel_d_start, gretel_d_end, &tmp.d)) {
+        return 1;
+    }
+
+    *res = tmp;
+    return 0;
+
+    /* TODO link req_id to new_nginx_event_id */
+
+}
+
 static void
 ngx_http_process_request_headers(ngx_event_t *rev)
 {
@@ -1474,6 +1554,8 @@ ngx_http_process_request_headers(ngx_event_t *rev)
 
             h->hash = r->header_hash;
 
+
+
             h->key.len = r->header_name_end - r->header_name_start;
             h->key.data = r->header_name_start;
             h->key.data[h->key.len] = '\0';
@@ -1481,6 +1563,49 @@ ngx_http_process_request_headers(ngx_event_t *rev)
             h->value.len = r->header_end - r->header_start;
             h->value.data = r->header_start;
             h->value.data[h->value.len] = '\0';
+
+            if (strcmp((const char*)h->key.data, GRETEL_HTTP_HEADER) == 0) {
+                gretel_t foreign_input_grtl = {};
+                if (gretel_parse_header_value(h->value.data, h->value.data + h->value.len, &foreign_input_grtl) == 0) {
+
+                    gretel_t merge_node = gretel_random();
+                    gretel_t new_node = gretel_random();
+                    gretel_node(rev->log, merge_node);
+                    gretel_node(rev->log, new_node);
+                    gretel_setg_resp(new_node);
+                    gretel_setg_req(merge_node);
+
+                    gretel_link(rev->log, rev->gretel_request, merge_node);
+                    gretel_link(rev->log, foreign_input_grtl, merge_node);
+                    gretel_link(rev->log, merge_node, new_node);
+                    rev->gretel_response = new_node;
+                    rev->gretel_request = merge_node;
+
+                    ngx_uint_t merge_grtl_hex_len = 64;
+                    u_char *merge_grtl_hex = ngx_pnalloc(r->pool, merge_grtl_hex_len+1);
+                    u_char *np = merge_grtl_hex + merge_grtl_hex_len;
+                    *np = '\0';
+
+                    uint64_t xs[] = {merge_node.d, merge_node.c, merge_node.b, merge_node.a};
+
+                    for (ngx_uint_t xi = 0; xi < 4; ++xi) {
+                        uint64_t x = xs[xi];
+                        ngx_uint_t num_digs = 0;
+                        while (x != 0 || num_digs < 16) {
+                            *--np = "0123456789abcdef"[x % 16];
+                            x /= 16;
+                            ++num_digs;
+                        }
+                    }
+                    h->value.data = merge_grtl_hex;
+                    h->value.len = merge_grtl_hex_len;
+
+                } else {
+                    /*
+                    r->request_gretel = grtl;
+                    */
+                }
+            }
 
             h->lowcase_key = ngx_pnalloc(r->pool, h->key.len);
             if (h->lowcase_key == NULL) {

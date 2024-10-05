@@ -196,6 +196,28 @@ ngx_spawn_process(ngx_cycle_t *cycle, ngx_spawn_proc_pt proc, void *data,
     case 0:
         ngx_parent = ngx_pid;
         ngx_pid = ngx_getpid();
+
+        gretel_counter = 0;
+
+        gretel_t parent_cycle_req = cycle->cycle_req_gretel; /* TODO vs "cycle_current_gretel"? */
+        //gretel_t parent_cycle_resp = cycle->cycle_resp_gretel;
+
+        gretel_t gretel_worker_start = gretel_random();
+        gretel_t gretel_worker_end = gretel_random();
+
+        gretel_setg_resp(gretel_worker_end);
+        gretel_setg_req(gretel_worker_start);
+
+        cycle->cycle_req_gretel = gretel_worker_start;
+        cycle->cycle_resp_gretel = gretel_worker_end;
+
+
+        gretel_node(cycle->log, gretel_worker_start);
+        gretel_node(cycle->log, gretel_worker_end);
+        gretel_link(cycle->log, gretel_worker_start, gretel_worker_end);
+        gretel_link(cycle->log, parent_cycle_req, cycle->cycle_req_gretel);
+        //gretel_link(cycle->log, cycle->cycle_resp_gretel, parent_cycle_resp);
+
         proc(cycle, data);
         break;
 

@@ -203,6 +203,22 @@ main(int argc, char *const *argv)
     ngx_conf_dump_t  *cd;
     ngx_core_conf_t  *ccf;
 
+    GRETEL_PID = 0;
+    const char *gretel_pid_str = getenv("GRETEL_PID");
+    if (gretel_pid_str) {
+        ngx_int_t atoi_res = ngx_atoi((u_char*)gretel_pid_str, strlen(gretel_pid_str));
+        if (atoi_res != NGX_ERROR) {
+            GRETEL_PID = (uint64_t) atoi_res;
+        }
+    }
+
+
+    gretel_t gretel_master_start = gretel_random();
+    gretel_t gretel_master_end = gretel_random();
+    gretel_setg_req(gretel_master_start);
+    gretel_setg_resp(gretel_master_end);
+
+
     ngx_debug_init();
 
     if (ngx_strerror_init() != NGX_OK) {
@@ -300,6 +316,9 @@ main(int argc, char *const *argv)
         return 1;
     }
 
+    cycle->cycle_req_gretel = gretel_master_start;
+    cycle->cycle_resp_gretel = gretel_master_end;
+
     if (ngx_test_config) {
         if (!ngx_quiet_mode) {
             ngx_log_stderr(0, "configuration file %s test is successful",
@@ -376,6 +395,10 @@ main(int argc, char *const *argv)
     }
 
     ngx_use_stderr = 0;
+
+    gretel_node(cycle->log, gretel_master_start);
+    gretel_node(cycle->log, gretel_master_end);
+    gretel_link(cycle->log, gretel_master_start, gretel_master_end);
 
     if (ngx_process == NGX_PROCESS_SINGLE) {
         ngx_single_process_cycle(cycle);

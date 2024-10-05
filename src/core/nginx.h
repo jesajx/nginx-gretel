@@ -22,5 +22,4 @@
 #define NGINX_VAR          "NGINX"
 #define NGX_OLDPID_EXT     ".oldbin"
 
-
 #endif /* _NGINX_H_INCLUDED_ */
