@@ -6,7 +6,7 @@ FROM alpine:3.20.3
 ENV NGINX_VERSION=1.27.1
 
 COPY . /tmp/nginx-src
-h
+
 RUN \
   build_pkgs="build-base linux-headers openssl-dev pcre-dev wget zlib-dev" && \
   runtime_pkgs="ca-certificates openssl pcre zlib tzdata git" && \
