@@ -81,7 +81,7 @@ void gretel_do_bump(ngx_log_t *log, gretel_t cur, gretel_t *req, gretel_t *resp,
 
             gretel_do_node(log, new_start, filename, lineno);
             gretel_do_node(log, new_end, filename, lineno);
-            //gretel_link(log, new_start, new_end);
+            gretel_link(log, new_start, new_end);
         } else {
             /* cur -> new_start -> new_end */
             gretel_t new_start = gretel_random();
@@ -94,7 +94,7 @@ void gretel_do_bump(ngx_log_t *log, gretel_t cur, gretel_t *req, gretel_t *resp,
             gretel_do_node(log, new_start, filename, lineno);
             gretel_do_node(log, new_end, filename, lineno);
             gretel_link(log, cur, new_start);
-            //gretel_link(log, new_start, new_end);
+            gretel_link(log, new_start, new_end);
         }
     } else {
         if (cur.a == 0) {
@@ -107,7 +107,7 @@ void gretel_do_bump(ngx_log_t *log, gretel_t cur, gretel_t *req, gretel_t *resp,
             gretel_setg_req(new_start);
 
             gretel_do_node(log, new_end, filename, lineno);
-            //gretel_link(log, new_start, new_end);
+            gretel_link(log, new_start, new_end);
         } else {
             /*
              *     cur -+
@@ -130,7 +130,7 @@ void gretel_do_bump(ngx_log_t *log, gretel_t cur, gretel_t *req, gretel_t *resp,
 
             gretel_link(log, old_end, merge_node);
             gretel_link(log, cur, merge_node);
-            //gretel_link(log, merge_node, new_end);
+            gretel_link(log, merge_node, new_end);
         }
     }
 }
