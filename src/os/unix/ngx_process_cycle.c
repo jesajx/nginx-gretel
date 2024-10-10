@@ -705,6 +705,27 @@ ngx_worker_process_cycle(ngx_cycle_t *cycle, void *data)
 
     ngx_worker_process_init(cycle, worker);
 
+
+
+    gretel_t parent_cycle_resp = cycle->cycle_resp_gretel;
+    //gretel_t parent_cycle_resp = cycle->cycle_resp_gretel;
+
+    gretel_t gretel_worker_start = gretel_random(); // NOTE: must be done after srandom
+    gretel_t gretel_worker_end = gretel_random();
+
+    gretel_setg_resp(gretel_worker_end);
+    gretel_setg_req(gretel_worker_start);
+
+    cycle->cycle_req_gretel = gretel_worker_start;
+    cycle->cycle_resp_gretel = gretel_worker_end;
+
+    gretel_node(cycle->log, gretel_worker_start);
+    gretel_node(cycle->log, gretel_worker_end);
+    gretel_link(cycle->log, parent_cycle_resp, gretel_worker_start);
+    gretel_link(cycle->log, gretel_worker_start, gretel_worker_end);
+    //gretel_link(cycle->log, cycle->cycle_resp_gretel, parent_cycle_resp);
+
+
     ngx_setproctitle("worker process");
 
     for ( ;; ) {

@@ -67,14 +67,11 @@ gretel_t gretel_random() {
 ngx_uint_t gretel_counter;
 ngx_uint_t GRETEL_PID;
 
-
 void gretel_do_bump(ngx_log_t *log, gretel_t cur, gretel_t *req, gretel_t *resp, const char *filename, const char *lineno) {
-    gretel_t old_end = *req;
+    gretel_t old_end = *resp;
     if (old_end.a == 0) {
         if (cur.a == 0) {
-            /*
-             * new_start -> new_end
-             */
+            /* new_start -> new_end */
             gretel_t new_start = gretel_random();
             gretel_t new_end = gretel_random();
             *resp = new_end;
@@ -84,11 +81,9 @@ void gretel_do_bump(ngx_log_t *log, gretel_t cur, gretel_t *req, gretel_t *resp,
 
             gretel_do_node(log, new_start, filename, lineno);
             gretel_do_node(log, new_end, filename, lineno);
-            gretel_link(log, new_start, new_end);
+            //gretel_link(log, new_start, new_end);
         } else {
-            /*
-             * cur -> new_start -> new_end
-             */
+            /* cur -> new_start -> new_end */
             gretel_t new_start = gretel_random();
             gretel_t new_end = gretel_random();
             *resp = new_end;
@@ -99,24 +94,34 @@ void gretel_do_bump(ngx_log_t *log, gretel_t cur, gretel_t *req, gretel_t *resp,
             gretel_do_node(log, new_start, filename, lineno);
             gretel_do_node(log, new_end, filename, lineno);
             gretel_link(log, cur, new_start);
-            gretel_link(log, new_start, new_end);
+            //gretel_link(log, new_start, new_end);
         }
     } else {
         if (cur.a == 0) {
-        }else {
+            /* old_end (=new_start) -> new_end */
+            gretel_t new_start = old_end;
+            gretel_t new_end = gretel_random();
+            *resp = new_end;
+            *req = new_start;
+            gretel_setg_resp(new_end);
+            gretel_setg_req(new_start);
+
+            gretel_do_node(log, new_end, filename, lineno);
+            //gretel_link(log, new_start, new_end);
+        } else {
             /*
-             *                  cur -+
-             *                       |
-             *                   merge_node -> new_end
-             *                       |
-             * old_start -> old_end -+
+             *     cur -+
+             *          |
+             *      merge_node -> new_end
+             *          |
+             * old_end -+
              *
              */
             gretel_t merge_node = gretel_random();
             gretel_t new_end = gretel_random();
             gretel_setg_resp(new_end);
             gretel_setg_req(merge_node);
-            *req = old_end;
+            *req = merge_node;
             *resp = new_end;
 
 
@@ -125,7 +130,22 @@ void gretel_do_bump(ngx_log_t *log, gretel_t cur, gretel_t *req, gretel_t *resp,
 
             gretel_link(log, old_end, merge_node);
             gretel_link(log, cur, merge_node);
-            gretel_link(log, merge_node, new_end);
+            //gretel_link(log, merge_node, new_end);
+        }
+    }
+}
+
+void gretel_format(gretel_t gretel, u_char *buf) {
+    u_char *np = buf + 64;
+    uint64_t xs[] = {gretel.d, gretel.c, gretel.b, gretel.a};
+
+    for (ngx_uint_t xi = 0; xi < 4; ++xi) {
+        uint64_t x = xs[xi];
+        ngx_uint_t num_digs = 0;
+        while (x != 0 || num_digs < 16) {
+            *--np = "0123456789abcdef"[x % 16];
+            x /= 16;
+            ++num_digs;
         }
     }
 }

@@ -310,6 +310,8 @@ ngx_http_header_filter(ngx_http_request_t *r)
         }
     }
 
+    len += sizeof("gretel: 0000000000000000000000000000000000000000000000000000000000000000" CRLF) -1;
+
     if (r->headers_out.content_length == NULL
         && r->headers_out.content_length_n >= 0)
     {
@@ -497,6 +499,15 @@ ngx_http_header_filter(ngx_http_request_t *r)
             r->headers_out.content_type.len = b->last - p;
             r->headers_out.content_type.data = p;
         }
+
+        *b->last++ = CR; *b->last++ = LF;
+    }
+
+    if (1) { // TODO gretel
+        b->last = ngx_cpymem(b->last, "gretel: ", sizeof("gretel: ") - 1);
+
+        gretel_format(r->headers_out.gretel, b->last);
+        b->last += 64;
 
         *b->last++ = CR; *b->last++ = LF;
     }

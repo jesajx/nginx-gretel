@@ -799,9 +799,9 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
 
 
 
-    events = epoll_wait(ep, event_list, (int) nevents, timer);
-
     gretel_bump(cycle->log, mkgretel(0,0,0,0), &cycle->cycle_req_gretel, &cycle->cycle_resp_gretel);
+    events = epoll_wait(ep, event_list, (int) nevents, timer);
+    gretel_bump(cycle->log, mkgretel(0,0,0,0), &cycle->cycle_req_gretel, &cycle->cycle_resp_gretel); // TODO
 
     err = (events == -1) ? ngx_errno : 0;
 
@@ -838,6 +838,7 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
     }
 
     for (i = 0; i < events; i++) {
+        gretel_bump(cycle->log, mkgretel(0,0,0,0), &cycle->cycle_req_gretel, &cycle->cycle_resp_gretel); // TODO
         c = event_list[i].data.ptr;
 
         instance = (uintptr_t) c & 1;

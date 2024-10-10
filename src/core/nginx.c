@@ -213,8 +213,9 @@ main(int argc, char *const *argv)
     }
 
 
-    gretel_t gretel_master_start = gretel_random();
-    gretel_t gretel_master_end = gretel_random();
+    gretel_t gretel_master_start = mkgretel(GRETEL_A_USER, GRETEL_PID, 0, 0);
+    gretel_t gretel_master_end = mkgretel(GRETEL_A_USER, GRETEL_PID, 0, 1);
+    gretel_master_end.b = GRETEL_PID;
     gretel_setg_req(gretel_master_start);
     gretel_setg_resp(gretel_master_end);
 

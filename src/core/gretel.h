@@ -40,4 +40,6 @@ void gretel_do_node(ngx_log_t *log, gretel_t node, const char *filename, const c
 void gretel_do_bump(ngx_log_t *log, gretel_t cur, gretel_t *req, gretel_t *resp, const char *filename, const char *lineno);
 #define gretel_bump(log, cur, req, resp) gretel_do_bump(log, cur, req, resp, GRETEL_FILENAME(), GRETEL_LINENO())
 
+void gretel_format(gretel_t gretel, u_char *buf);
+
 #endif /*_GRETEL_H_INCLUDED_*/

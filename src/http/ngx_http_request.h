@@ -278,6 +278,8 @@ typedef struct {
     ngx_table_elt_t                  *cache_control;
     ngx_table_elt_t                  *link;
 
+    gretel_t                         gretel;
+
     ngx_str_t                        *override_charset;
 
     size_t                            content_type_len;

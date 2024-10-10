@@ -363,7 +363,7 @@ ngx_http_init_connection(ngx_connection_t *c)
 
 
 static void
-ngx_http_wait_request_handler(ngx_event_t *rev)
+ngx_http_wait_request_handler(ngx_event_t *rev) // TODO
 {
     u_char                    *p;
     size_t                     size;
@@ -518,6 +518,8 @@ ngx_http_wait_request_handler(ngx_event_t *rev)
         ngx_http_close_connection(c);
         return;
     }
+
+    gretel_bump(rev->log, mkgretel(0,0,0,0), &rev->gretel_request, &rev->gretel_response);
 
     rev->handler = ngx_http_process_request_line;
     ngx_http_process_request_line(rev);
@@ -1369,11 +1371,11 @@ static ngx_int_t gretel_parse_hex(u_char *start, u_char *end, uint64_t *res) {
     while (p < end) {
         u_char c = *p;
         ngx_int_t d = 0;
-        if ('0' <= c && c < '9') {
+        if ('0' <= c && c <= '9') {
             d = (ngx_int_t)(c - (u_char)'0');
-        } else if ('a' <= c && c < 'f') {
+        } else if ('a' <= c && c <= 'f') {
             d = (ngx_int_t)(c - (u_char)'a') + 10;
-        } else if ('A' <= c && c < 'F') {
+        } else if ('A' <= c && c <= 'F') {
             d = (ngx_int_t)(c - (u_char)'A') + 10;
         } else {
             return 1;
@@ -1474,6 +1476,8 @@ ngx_http_process_request_headers(ngx_event_t *rev)
 
     rc = NGX_AGAIN;
 
+    ngx_int_t gretel_found = 0;
+
     for ( ;; ) {
 
         if (rc == NGX_AGAIN) {
@@ -1567,25 +1571,14 @@ ngx_http_process_request_headers(ngx_event_t *rev)
             if (strcmp((const char*)h->key.data, GRETEL_HTTP_HEADER) == 0) {
                 gretel_t foreign_input_grtl = {};
                 if (gretel_parse_header_value(h->value.data, h->value.data + h->value.len, &foreign_input_grtl) == 0) {
-
-                    gretel_t merge_node = gretel_random();
-                    gretel_t new_node = gretel_random();
-                    gretel_node(rev->log, merge_node);
-                    gretel_node(rev->log, new_node);
-                    gretel_setg_resp(new_node);
-                    gretel_setg_req(merge_node);
-
-                    gretel_link(rev->log, rev->gretel_request, merge_node);
-                    gretel_link(rev->log, foreign_input_grtl, merge_node);
-                    gretel_link(rev->log, merge_node, new_node);
-                    rev->gretel_response = new_node;
-                    rev->gretel_request = merge_node;
+                    gretel_bump(rev->log, foreign_input_grtl, &rev->gretel_request, &rev->gretel_response);
 
                     ngx_uint_t merge_grtl_hex_len = 64;
                     u_char *merge_grtl_hex = ngx_pnalloc(r->pool, merge_grtl_hex_len+1);
                     u_char *np = merge_grtl_hex + merge_grtl_hex_len;
                     *np = '\0';
 
+                    gretel_t merge_node = rev->gretel_request;
                     uint64_t xs[] = {merge_node.d, merge_node.c, merge_node.b, merge_node.a};
 
                     for (ngx_uint_t xi = 0; xi < 4; ++xi) {
@@ -1600,10 +1593,12 @@ ngx_http_process_request_headers(ngx_event_t *rev)
                     h->value.data = merge_grtl_hex;
                     h->value.len = merge_grtl_hex_len;
 
+                    gretel_found = 1;
                 } else {
-                    /*
-                    r->request_gretel = grtl;
-                    */
+                    gretel_bump(rev->log, mkgretel(0,0,0,0), &rev->gretel_request, &rev->gretel_response);
+                    ngx_log_error(NGX_LOG_ALERT, c->log, 0,
+                                "invalid gretel: \"%s\"",
+                                h->value.data);
                 }
             }
 
@@ -1672,6 +1667,11 @@ ngx_http_process_request_headers(ngx_event_t *rev)
 
         ngx_http_finalize_request(r, NGX_HTTP_BAD_REQUEST);
         break;
+    }
+
+
+    if (!gretel_found) {
+        gretel_bump(rev->log, mkgretel(0,0,0,0), &rev->gretel_request, &rev->gretel_response);
     }
 
     ngx_http_run_posted_requests(c);
@@ -2175,7 +2175,7 @@ ngx_http_process_request_header(ngx_http_request_t *r)
 
 
 void
-ngx_http_process_request(ngx_http_request_t *r)
+ngx_http_process_request(ngx_http_request_t *r) // TODO
 {
     ngx_connection_t  *c;
 
@@ -2528,7 +2528,7 @@ ngx_http_find_virtual_server(ngx_connection_t *c,
 
 
 static void
-ngx_http_request_handler(ngx_event_t *ev)
+ngx_http_request_handler(ngx_event_t *ev) //
 {
     ngx_connection_t    *c;
     ngx_http_request_t  *r;
