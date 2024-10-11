@@ -1900,6 +1900,7 @@ ngx_http_proxy_process_header(ngx_http_request_t *r)
 
     umcf = ngx_http_get_module_main_conf(r, ngx_http_upstream_module);
 
+    ngx_int_t gretel_found = 0;
     for ( ;; ) {
 
         rc = ngx_http_parse_header_line(r, &r->upstream->buffer, 1);
@@ -1933,6 +1934,45 @@ ngx_http_proxy_process_header(ngx_http_request_t *r)
             ngx_memcpy(h->value.data, r->header_start, h->value.len);
             h->value.data[h->value.len] = '\0';
 
+            if (strcmp((const char*)h->key.data, GRETEL_HTTP_HEADER) == 0) {
+
+                ngx_event_t *rev = r->connection->read;
+                gretel_t foreign_input_grtl = {};
+                if (gretel_parse_header_value(h->value.data, h->value.data + h->value.len, &foreign_input_grtl) == 0) {
+
+                    gretel_bump(rev->log, foreign_input_grtl, &rev->gretel_request, &rev->gretel_response);
+
+                    ngx_uint_t merge_grtl_hex_len = 64;
+                    u_char *merge_grtl_hex = ngx_pnalloc(r->pool, merge_grtl_hex_len+1);
+                    u_char *np = merge_grtl_hex + merge_grtl_hex_len;
+                    *np = '\0';
+
+                    gretel_t merge_node = rev->gretel_request;
+                    uint64_t xs[] = {merge_node.d, merge_node.c, merge_node.b, merge_node.a};
+
+                    for (ngx_uint_t xi = 0; xi < 4; ++xi) {
+                        uint64_t x = xs[xi];
+                        ngx_uint_t num_digs = 0;
+                        while (x != 0 || num_digs < 16) {
+                            *--np = "0123456789abcdef"[x % 16];
+                            x /= 16;
+                            ++num_digs;
+                        }
+                    }
+                    h->value.data = merge_grtl_hex;
+                    h->value.len = merge_grtl_hex_len;
+
+                    gretel_found = 1;
+                } else {
+                    gretel_bump(rev->log, mkgretel(0,0,0,0), &rev->gretel_request, &rev->gretel_response);
+                    ngx_log_error(NGX_LOG_ALERT, rev->log, 0,
+                                "invalid gretel: \"%s\"",
+                                h->value.data);
+                }
+            }
+
+            // TODO check gretel here
+
             if (h->key.len == r->lowcase_index) {
                 ngx_memcpy(h->lowcase_key, r->lowcase_header, h->key.len);
 
@@ -1964,6 +2004,11 @@ ngx_http_proxy_process_header(ngx_http_request_t *r)
 
             ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                            "http proxy header done");
+
+            if (!gretel_found) {
+                ngx_event_t *rev = r->connection->read;
+                gretel_bump(rev->log, mkgretel(0,0,0,0), &rev->gretel_request, &rev->gretel_response);
+            }
 
             /*
              * if no "Server" and "Date" in header line,

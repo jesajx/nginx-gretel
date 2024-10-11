@@ -78,7 +78,7 @@ typedef struct {
 
 
 #define ngx_http_get_module_ctx(r, module)  (r)->ctx[module.ctx_index]
-#define ngx_http_set_ctx(r, c, module)      r->ctx[module.ctx_index] = c;
+#define ngx_http_set_ctx(r, c, module)      {r->ctx[module.ctx_index] = c; gretel_bump(r->connection->read->log, mkgretel(0,0,0,0), &r->connection->read->gretel_request, &r->connection->read->gretel_response);}
 
 
 ngx_int_t ngx_http_add_location(ngx_conf_t *cf, ngx_queue_t **locations,

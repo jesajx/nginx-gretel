@@ -42,4 +42,7 @@ void gretel_do_bump(ngx_log_t *log, gretel_t cur, gretel_t *req, gretel_t *resp,
 
 void gretel_format(gretel_t gretel, u_char *buf);
 
+ngx_int_t gretel_parse_hex(u_char *start, u_char *end, uint64_t *res);
+ngx_int_t gretel_parse_header_value(u_char *gretelstr_start, u_char *gretelstr_end, gretel_t *res);
+
 #endif /*_GRETEL_H_INCLUDED_*/

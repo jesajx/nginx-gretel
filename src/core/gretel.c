@@ -149,3 +149,83 @@ void gretel_format(gretel_t gretel, u_char *buf) {
         }
     }
 }
+
+ngx_int_t gretel_parse_hex(u_char *start, u_char *end, uint64_t *res) {
+    u_char *p = start;
+    uint64_t x = 0;
+    while (p < end) {
+        u_char c = *p;
+        ngx_int_t d = 0;
+        if ('0' <= c && c <= '9') {
+            d = (ngx_int_t)(c - (u_char)'0');
+        } else if ('a' <= c && c <= 'f') {
+            d = (ngx_int_t)(c - (u_char)'a') + 10;
+        } else if ('A' <= c && c <= 'F') {
+            d = (ngx_int_t)(c - (u_char)'A') + 10;
+        } else {
+            return 1;
+        }
+
+        x = 16*x + d;
+
+        ++p;
+    }
+
+    *res = x;
+    return 0;
+}
+
+ngx_int_t gretel_parse_header_value(u_char *gretelstr_start, u_char *gretelstr_end, gretel_t *res) {
+
+    ngx_int_t hex_8bytes = 16;
+
+    u_char *gretel_d_end = gretelstr_end;
+    u_char *gretel_d_start = gretel_d_end - hex_8bytes;
+    if (gretel_d_start < gretelstr_start) {
+        return 1;
+    }
+
+    u_char *gretel_c_end = gretel_d_start;
+    u_char *gretel_c_start = gretel_c_end - hex_8bytes;
+    if (gretel_c_start < gretelstr_start) {
+        return 1;
+    }
+
+    u_char *gretel_b_end = gretel_c_start;
+    u_char *gretel_b_start = gretel_b_end - hex_8bytes;
+    if (gretel_b_start < gretelstr_start) {
+        return 1;
+    }
+
+    u_char *gretel_a_end = gretel_b_start;
+    u_char *gretel_a_start = gretel_a_end - hex_8bytes;
+    if (gretel_a_start < gretelstr_start) {
+        return 1;
+    }
+
+    /* TODO check bounds? clean up */
+
+    gretel_t tmp = {};
+
+    if (gretel_parse_hex(gretel_a_start, gretel_a_end, &tmp.a)) {
+        return 1;
+    }
+
+    if (gretel_parse_hex(gretel_b_start, gretel_b_end, &tmp.b)) {
+        return 1;
+    }
+
+    if (gretel_parse_hex(gretel_c_start, gretel_c_end, &tmp.c)) {
+        return 1;
+    }
+
+    if (gretel_parse_hex(gretel_d_start, gretel_d_end, &tmp.d)) {
+        return 1;
+    }
+
+    *res = tmp;
+    return 0;
+
+    /* TODO link req_id to new_nginx_event_id */
+
+}
