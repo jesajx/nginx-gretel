@@ -911,6 +911,7 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
 
                 gretel_setg_req(cycle->cycle_req_gretel);
                 gretel_setg_resp(cycle->cycle_resp_gretel);
+                gretel_bump(cycle->log, ev->gretel_request, &cycle->cycle_req_gretel, &cycle->cycle_resp_gretel);
             }
         }
 

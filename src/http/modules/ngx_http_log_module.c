@@ -245,6 +245,8 @@ static ngx_http_log_var_t  ngx_http_log_vars[] = {
                           ngx_http_log_body_bytes_sent },
     { ngx_string("request_length"), NGX_SIZE_T_LEN,
                           ngx_http_log_request_length },
+    // TODO (gretel_in,64,get_gretel_req_form_request)
+    // TODO (gretel_out,64,get_gretel_resp_form_request)
 
     { ngx_null_string, 0, NULL }
 };
