@@ -203,6 +203,7 @@ main(int argc, char *const *argv)
     ngx_conf_dump_t  *cd;
     ngx_core_conf_t  *ccf;
 
+#if GRETEL_ENABLE
     GRETEL_PID = 0;
     const char *gretel_pid_str = getenv("GRETEL_PID");
     if (gretel_pid_str) {
@@ -212,12 +213,12 @@ main(int argc, char *const *argv)
         }
     }
 
-
     gretel_t gretel_master_start = mkgretel(GRETEL_A_USER, GRETEL_PID, 0, 0);
     gretel_t gretel_master_end = mkgretel(GRETEL_A_USER, GRETEL_PID, 0, 1);
     gretel_master_end.b = GRETEL_PID;
     gretel_setg_req(gretel_master_start);
     gretel_setg_resp(gretel_master_end);
+#endif
 
 
     ngx_debug_init();
@@ -317,8 +318,10 @@ main(int argc, char *const *argv)
         return 1;
     }
 
+#if GRETEL_ENABLE
     cycle->cycle_req_gretel = gretel_master_start;
     cycle->cycle_resp_gretel = gretel_master_end;
+#endif
 
     if (ngx_test_config) {
         if (!ngx_quiet_mode) {
@@ -397,9 +400,11 @@ main(int argc, char *const *argv)
 
     ngx_use_stderr = 0;
 
+#if GRETEL_ENABLE
     gretel_node(cycle->log, gretel_master_start);
     gretel_node(cycle->log, gretel_master_end);
     gretel_link(cycle->log, gretel_master_start, gretel_master_end);
+#endif
 
     if (ngx_process == NGX_PROCESS_SINGLE) {
         ngx_single_process_cycle(cycle);

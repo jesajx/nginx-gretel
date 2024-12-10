@@ -1900,7 +1900,9 @@ ngx_http_proxy_process_header(ngx_http_request_t *r)
 
     umcf = ngx_http_get_module_main_conf(r, ngx_http_upstream_module);
 
+#if GRETEL_ENABLE
     ngx_int_t gretel_found = 0;
+#endif
     for ( ;; ) {
 
         rc = ngx_http_parse_header_line(r, &r->upstream->buffer, 1);
@@ -1934,9 +1936,11 @@ ngx_http_proxy_process_header(ngx_http_request_t *r)
             ngx_memcpy(h->value.data, r->header_start, h->value.len);
             h->value.data[h->value.len] = '\0';
 
+#if GRETEL_ENABLE
             if (strcmp((const char*)h->key.data, GRETEL_HTTP_HEADER) == 0) {
 
                 ngx_event_t *rev = r->connection->read;
+
                 gretel_t foreign_input_grtl = {};
                 if (gretel_parse_header_value(h->value.data, h->value.data + h->value.len, &foreign_input_grtl) == 0) {
 
@@ -1970,6 +1974,7 @@ ngx_http_proxy_process_header(ngx_http_request_t *r)
                                 h->value.data);
                 }
             }
+#endif
 
             // TODO check gretel here
 
@@ -2005,10 +2010,12 @@ ngx_http_proxy_process_header(ngx_http_request_t *r)
             ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                            "http proxy header done");
 
+#if GRETEL_ENABLE
             if (!gretel_found) {
                 ngx_event_t *rev = r->connection->read;
                 gretel_bump(rev->log, mkgretel(0,0,0,0), &rev->gretel_request, &rev->gretel_response);
             }
+#endif
 
             /*
              * if no "Server" and "Date" in header line,

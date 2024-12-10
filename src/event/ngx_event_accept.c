@@ -233,6 +233,7 @@ ngx_event_accept(ngx_event_t *ev)
         rev = c->read;
         wev = c->write;
 
+#if GRETEL_ENABLE
         if (rev->gretel_request.a == 0) {
             gretel_t ev_start = gretel_random();
             gretel_t ev_end = gretel_random();
@@ -296,6 +297,7 @@ ngx_event_accept(ngx_event_t *ev)
             gretel_link(ev->log, old_end, ev_merge);
             gretel_link(ev->log, ev->gretel_request, ev_merge);
         }
+#endif
 
         wev->ready = 1;
 

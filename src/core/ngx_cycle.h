@@ -56,8 +56,10 @@ struct ngx_cycle_s {
     ngx_uint_t                reusable_connections_n;
     time_t                    connections_reuse_time;
 
+#if GRETEL_ENABLE
     gretel_t                  cycle_req_gretel;
     gretel_t                  cycle_resp_gretel;
+#endif
 
     ngx_array_t               listening;
     ngx_array_t               paths;

@@ -130,6 +130,13 @@ static u_char *ngx_http_log_body_bytes_sent(ngx_http_request_t *r,
 static u_char *ngx_http_log_request_length(ngx_http_request_t *r, u_char *buf,
     ngx_http_log_op_t *op);
 
+#if GRETEL_ENABLE
+static u_char * ngx_http_log_gretel_prev(ngx_http_request_t *r, u_char *buf,
+    ngx_http_log_op_t *op);
+static u_char * ngx_http_log_gretel_cur(ngx_http_request_t *r, u_char *buf,
+    ngx_http_log_op_t *op);
+#endif
+
 static ngx_int_t ngx_http_log_variable_compile(ngx_conf_t *cf,
     ngx_http_log_op_t *op, ngx_str_t *value, ngx_uint_t escape);
 static size_t ngx_http_log_variable_getlen(ngx_http_request_t *r,
@@ -245,8 +252,12 @@ static ngx_http_log_var_t  ngx_http_log_vars[] = {
                           ngx_http_log_body_bytes_sent },
     { ngx_string("request_length"), NGX_SIZE_T_LEN,
                           ngx_http_log_request_length },
-    // TODO (gretel_in,64,get_gretel_req_form_request)
-    // TODO (gretel_out,64,get_gretel_resp_form_request)
+#if GRETEL_ENABLE
+    { ngx_string("gretel_prev"), GRETEL_STR_MAX_LEN, /* 16*4=64chars (hex) */
+                          ngx_http_log_gretel_prev},
+    { ngx_string("gretel_cur"), GRETEL_STR_MAX_LEN, /* 16*4=64chars (hex) */
+                          ngx_http_log_gretel_cur},
+#endif
 
     { ngx_null_string, 0, NULL }
 };
@@ -912,6 +923,30 @@ ngx_http_log_request_length(ngx_http_request_t *r, u_char *buf,
 {
     return ngx_sprintf(buf, "%O", r->request_length);
 }
+
+#if GRETEL_ENABLE
+static u_char *
+ngx_http_log_gretel_prev(ngx_http_request_t *r, u_char *buf,
+    ngx_http_log_op_t *op)
+{
+    ngx_event_t *rev = r->connection->read;
+
+    /* NOTE: Assumes buf len >= GRETEL_STR_MAX_LEN */
+    gretel_format(rev->gretel_request, buf);
+    return buf + GRETEL_STR_MAX_LEN;
+}
+
+static u_char *
+ngx_http_log_gretel_cur(ngx_http_request_t *r, u_char *buf,
+    ngx_http_log_op_t *op)
+{
+    ngx_event_t *rev = r->connection->read;
+
+    /* NOTE: Assumes buf len >= GRETEL_STR_MAX_LEN */
+    gretel_format(rev->gretel_response, buf);
+    return buf + GRETEL_STR_MAX_LEN;
+}
+#endif
 
 
 static ngx_int_t

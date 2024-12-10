@@ -136,7 +136,8 @@ void gretel_do_bump(ngx_log_t *log, gretel_t cur, gretel_t *req, gretel_t *resp,
 }
 
 void gretel_format(gretel_t gretel, u_char *buf) {
-    u_char *np = buf + 64;
+
+    u_char *np = buf + GRETEL_STR_MAX_LEN; // 64 chars, 16chars per u64 TODO what???
     uint64_t xs[] = {gretel.d, gretel.c, gretel.b, gretel.a};
 
     for (ngx_uint_t xi = 0; xi < 4; ++xi) {
@@ -152,6 +153,9 @@ void gretel_format(gretel_t gretel, u_char *buf) {
 
 ngx_int_t gretel_parse_hex(u_char *start, u_char *end, uint64_t *res) {
     u_char *p = start;
+    if (end - start > GRETEL_U64_HEXSTR_MAX_LEN) {
+        return 1;
+    }
     uint64_t x = 0;
     while (p < end) {
         u_char c = *p;

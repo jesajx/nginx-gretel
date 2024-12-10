@@ -519,7 +519,9 @@ ngx_http_wait_request_handler(ngx_event_t *rev) // TODO
         return;
     }
 
+#if GRETEL_ENABLE
     gretel_bump(rev->log, mkgretel(0,0,0,0), &rev->gretel_request, &rev->gretel_response);
+#endif
 
     rev->handler = ngx_http_process_request_line;
     ngx_http_process_request_line(rev);
@@ -1395,7 +1397,9 @@ ngx_http_process_request_headers(ngx_event_t *rev)
 
     rc = NGX_AGAIN;
 
+#if GRETEL_ENABLE
     ngx_int_t gretel_found = 0;
+#endif
 
     for ( ;; ) {
 
@@ -1487,6 +1491,7 @@ ngx_http_process_request_headers(ngx_event_t *rev)
             h->value.data = r->header_start;
             h->value.data[h->value.len] = '\0';
 
+#if GRETEL_ENABLE
             if (strcmp((const char*)h->key.data, GRETEL_HTTP_HEADER) == 0) {
                 gretel_t foreign_input_grtl = {};
                 if (gretel_parse_header_value(h->value.data, h->value.data + h->value.len, &foreign_input_grtl) == 0) {
@@ -1512,15 +1517,20 @@ ngx_http_process_request_headers(ngx_event_t *rev)
                     h->value.data = merge_grtl_hex;
                     h->value.len = merge_grtl_hex_len;
 
+#if GRETEL_ENABLE
                     gretel_bump(rev->log, mkgretel(0,0,0,0), &rev->gretel_request, &rev->gretel_response);
                     gretel_found = 1;
+#endif
                 } else {
+#if GRETEL_ENABLE
                     gretel_bump(rev->log, mkgretel(0,0,0,0), &rev->gretel_request, &rev->gretel_response);
+#endif
                     ngx_log_error(NGX_LOG_ALERT, c->log, 0,
                                 "invalid gretel: \"%s\"",
                                 h->value.data);
                 }
             }
+#endif
 
             h->lowcase_key = ngx_pnalloc(r->pool, h->key.len);
             if (h->lowcase_key == NULL) {
@@ -1590,9 +1600,11 @@ ngx_http_process_request_headers(ngx_event_t *rev)
     }
 
 
+#if GRETEL_ENABLE
     if (!gretel_found) {
         gretel_bump(rev->log, mkgretel(0,0,0,0), &rev->gretel_request, &rev->gretel_response);
     }
+#endif
 
     ngx_http_run_posted_requests(c);
 }

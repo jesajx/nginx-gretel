@@ -229,7 +229,9 @@ ngx_http_static_handler(ngx_http_request_t *r) // TODO
     r->headers_out.status = NGX_HTTP_OK;
     r->headers_out.content_length_n = of.size;
     r->headers_out.last_modified_time = of.mtime;
+#if GRETEL_ENABLE
     r->headers_out.gretel = r->connection->read->gretel_request; // TODO vs set in trailer?
+#endif
 
     if (ngx_http_set_etag(r) != NGX_OK) {
         return NGX_HTTP_INTERNAL_SERVER_ERROR;

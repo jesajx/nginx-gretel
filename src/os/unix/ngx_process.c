@@ -183,7 +183,9 @@ ngx_spawn_process(ngx_cycle_t *cycle, ngx_spawn_proc_pt proc, void *data,
     ngx_process_slot = s;
 
 
+#if GRETEL_ENABLE
     gretel_bump(cycle->log, mkgretel(0,0,0,0), &cycle->cycle_req_gretel, &cycle->cycle_resp_gretel);
+#endif
     pid = fork();
 
     switch (pid) {
@@ -198,7 +200,9 @@ ngx_spawn_process(ngx_cycle_t *cycle, ngx_spawn_proc_pt proc, void *data,
         ngx_parent = ngx_pid;
         ngx_pid = ngx_getpid();
 
+#if GRETEL_ENABLE
         gretel_counter = 0;
+#endif
 
 
         /* NOTE: gretel bump done in ngx_worker_process_cycle */
@@ -206,7 +210,9 @@ ngx_spawn_process(ngx_cycle_t *cycle, ngx_spawn_proc_pt proc, void *data,
         break;
 
     default:
+#if GRETEL_ENABLE
         gretel_bump(cycle->log, mkgretel(0,0,0,0), &cycle->cycle_req_gretel, &cycle->cycle_resp_gretel);
+#endif
         break;
     }
 

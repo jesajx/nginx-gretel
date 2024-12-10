@@ -1,6 +1,10 @@
 #ifndef _GRETEL_H_INCLUDED_
 #define _GRETEL_H_INCLUDED_
 
+#ifndef GRETEL_ENABLE
+#define GRETEL_ENABLE 1
+#endif
+
 struct gretel_struct {
     uint64_t a,b,c,d;
 };
@@ -39,6 +43,9 @@ void gretel_do_node(ngx_log_t *log, gretel_t node, const char *filename, const c
 
 void gretel_do_bump(ngx_log_t *log, gretel_t cur, gretel_t *req, gretel_t *resp, const char *filename, const char *lineno);
 #define gretel_bump(log, cur, req, resp) gretel_do_bump(log, cur, req, resp, GRETEL_FILENAME(), GRETEL_LINENO())
+
+#define GRETEL_U64_HEXSTR_MAX_LEN 16  /* NOTE: 16 hexadecimal-digits (not 20 decimal digits) */
+#define GRETEL_STR_MAX_LEN (GRETEL_U64_HEXSTR_MAX_LEN * 4)
 
 void gretel_format(gretel_t gretel, u_char *buf);
 
