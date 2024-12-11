@@ -800,11 +800,11 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
 
 
 #if GRETEL_ENABLE
-    gretel_bump(cycle->log, mkgretel(0,0,0,0), &cycle->cycle_req_gretel, &cycle->cycle_resp_gretel);
+    //gretel_bump(cycle->log, mkgretel(0,0,0,0), &cycle->cycle_req_gretel, &cycle->cycle_resp_gretel);
 #endif
     events = epoll_wait(ep, event_list, (int) nevents, timer);
 #if GRETEL_ENABLE
-    gretel_bump(cycle->log, mkgretel(0,0,0,0), &cycle->cycle_req_gretel, &cycle->cycle_resp_gretel); // TODO
+    //gretel_bump(cycle->log, mkgretel(0,0,0,0), &cycle->cycle_req_gretel, &cycle->cycle_resp_gretel); // TODO
 #endif
 
     err = (events == -1) ? ngx_errno : 0;
@@ -843,7 +843,7 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
 
     for (i = 0; i < events; i++) {
 #if GRETEL_ENABLE
-            gretel_bump(cycle->log, mkgretel(0,0,0,0), &cycle->cycle_req_gretel, &cycle->cycle_resp_gretel); // TODO
+            //gretel_bump(cycle->log, mkgretel(0,0,0,0), &cycle->cycle_req_gretel, &cycle->cycle_resp_gretel); // TODO
 #endif
         c = event_list[i].data.ptr;
 
@@ -912,7 +912,12 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
 
                 ngx_event_t *ev = rev;
 #if GRETEL_ENABLE
-                gretel_bump(cycle->log, cycle->cycle_req_gretel, &ev->gretel_request, &ev->gretel_response);
+                if (0) {
+                    gretel_bump(cycle->log, cycle->cycle_req_gretel, &ev->gretel_request, &ev->gretel_response);
+                } else {
+                    gretel_setg_resp(ev->gretel_request);
+                    gretel_setg_req(ev->gretel_response);
+                }
 #endif
 
                 ev->handler(ev);
@@ -920,7 +925,7 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
 #if GRETEL_ENABLE
                 gretel_setg_req(cycle->cycle_req_gretel);
                 gretel_setg_resp(cycle->cycle_resp_gretel);
-                gretel_bump(cycle->log, ev->gretel_request, &cycle->cycle_req_gretel, &cycle->cycle_resp_gretel);
+                //gretel_bump(cycle->log, ev->gretel_request, &cycle->cycle_req_gretel, &cycle->cycle_resp_gretel);
 #endif
             }
         }
@@ -952,7 +957,12 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
             } else {
                 ngx_event_t *ev = wev;
 #if GRETEL_ENABLE
-                gretel_bump(cycle->log, cycle->cycle_req_gretel, &ev->gretel_request, &ev->gretel_response);
+                if (0) {
+                    gretel_bump(cycle->log, cycle->cycle_req_gretel, &ev->gretel_request, &ev->gretel_response);
+                } else {
+                    gretel_setg_resp(ev->gretel_request);
+                    gretel_setg_req(ev->gretel_response);
+                }
 #endif
 
                 ev->handler(ev);
@@ -960,6 +970,7 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
 #if GRETEL_ENABLE
                 gretel_setg_req(cycle->cycle_req_gretel);
                 gretel_setg_resp(cycle->cycle_resp_gretel);
+                //gretel_bump(cycle->log, ev->gretel_request, &cycle->cycle_req_gretel, &cycle->cycle_resp_gretel);
 #endif
             }
         }

@@ -26,29 +26,33 @@ void gretel_setg_resp(gretel_t grtl) {
 
 
 void gretel_do_node(ngx_log_t *log, gretel_t node, const char *filename, const char *lineno) {
-    ngx_log_error(NGX_LOG_ALERT, log, 0, "GRETEL NODE %016xl-%016xl-%016xl-%016xl gp=%ul pid=%ul file=%s lineno=%s",
-                    node.a,
-                    node.b,
-                    node.c,
-                    node.d,
-                    GRETEL_PID,
-                    ngx_pid,
-                    (u_char*)filename,
-                    (u_char*)lineno
-                    );
+    if (1) {
+        ngx_log_error(NGX_LOG_ALERT, log, 0, "GRETEL NODE %016xl-%016xl-%016xl-%016xl gp=%ul pid=%ul file=%s lineno=%s",
+                      node.a,
+                      node.b,
+                      node.c,
+                      node.d,
+                      GRETEL_PID,
+                      ngx_pid,
+                      (u_char*)filename,
+                      (u_char*)lineno
+                     );
+    }
 }
 
 void gretel_link(ngx_log_t *log, gretel_t prev, gretel_t next) {
-    ngx_log_error(NGX_LOG_ALERT, log, 0, "GRETEL LINK %016xl-%016xl-%016xl-%016xl->%016xl-%016xl-%016xl-%016xl",
-                    prev.a,
-                    prev.b,
-                    prev.c,
-                    prev.d,
-                    next.a,
-                    next.b,
-                    next.c,
-                    next.d
-                    );
+    if (1) {
+        ngx_log_error(NGX_LOG_ALERT, log, 0, "GRETEL LINK %016xl-%016xl-%016xl-%016xl->%016xl-%016xl-%016xl-%016xl",
+                      prev.a,
+                      prev.b,
+                      prev.c,
+                      prev.d,
+                      next.a,
+                      next.b,
+                      next.c,
+                      next.d
+                     );
+    }
 }
 
 static uint64_t gretel_random64() {

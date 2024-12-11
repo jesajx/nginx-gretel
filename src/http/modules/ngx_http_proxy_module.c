@@ -1968,7 +1968,7 @@ ngx_http_proxy_process_header(ngx_http_request_t *r)
 
                     gretel_found = 1;
                 } else {
-                    gretel_bump(rev->log, mkgretel(0,0,0,0), &rev->gretel_request, &rev->gretel_response);
+                    //gretel_bump(rev->log, mkgretel(0,0,0,0), &rev->gretel_request, &rev->gretel_response);
                     ngx_log_error(NGX_LOG_ALERT, rev->log, 0,
                                 "invalid gretel: \"%s\"",
                                 h->value.data);
@@ -2012,8 +2012,8 @@ ngx_http_proxy_process_header(ngx_http_request_t *r)
 
 #if GRETEL_ENABLE
             if (!gretel_found) {
-                ngx_event_t *rev = r->connection->read;
-                gretel_bump(rev->log, mkgretel(0,0,0,0), &rev->gretel_request, &rev->gretel_response);
+                //ngx_event_t *rev = r->connection->read;
+                //gretel_bump(rev->log, mkgretel(0,0,0,0), &rev->gretel_request, &rev->gretel_response);
             }
 #endif
 

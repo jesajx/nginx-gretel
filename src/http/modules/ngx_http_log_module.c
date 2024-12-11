@@ -931,7 +931,6 @@ ngx_http_log_gretel_prev(ngx_http_request_t *r, u_char *buf,
 {
     ngx_event_t *rev = r->connection->read;
 
-    /* NOTE: Assumes buf len >= GRETEL_STR_MAX_LEN */
     gretel_format(rev->gretel_request, buf);
     return buf + GRETEL_STR_MAX_LEN;
 }
@@ -942,8 +941,10 @@ ngx_http_log_gretel_cur(ngx_http_request_t *r, u_char *buf,
 {
     ngx_event_t *rev = r->connection->read;
 
-    /* NOTE: Assumes buf len >= GRETEL_STR_MAX_LEN */
-    gretel_format(rev->gretel_response, buf);
+    /* TODO or do dump where logging is called? */
+    gretel_bump(rev->log, mkgretel(0,0,0,0), &rev->gretel_request, &rev->gretel_response);
+    gretel_format(rev->gretel_request, buf);
+
     return buf + GRETEL_STR_MAX_LEN;
 }
 #endif

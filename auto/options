@@ -228,6 +228,8 @@ $0: warning: the \"--with-ipv6\" option is deprecated"
         --without-http)                  HTTP=NO                    ;;
         --without-http-cache)            HTTP_CACHE=NO              ;;
 
+        --gretel-enable=*)               GRETEL_ENABLE="$value" ;;
+
         --http-log-path=*)               NGX_HTTP_LOG_PATH="$value" ;;
         --http-client-body-temp-path=*)  NGX_HTTP_CLIENT_TEMP_PATH="$value" ;;
         --http-proxy-temp-path=*)        NGX_HTTP_PROXY_TEMP_PATH="$value" ;;
@@ -629,6 +631,8 @@ if [ ".$NGX_ERROR_LOG_PATH" = ".stderr" ]; then
 else
     NGX_ERROR_LOG_PATH=${NGX_ERROR_LOG_PATH:-logs/error.log}
 fi
+
+GRETEL_ENABLE=${GRETEL_ENABLE:-0}
 
 NGX_HTTP_LOG_PATH=${NGX_HTTP_LOG_PATH:-logs/access.log}
 NGX_HTTP_CLIENT_TEMP_PATH=${NGX_HTTP_CLIENT_TEMP_PATH:-client_body_temp}

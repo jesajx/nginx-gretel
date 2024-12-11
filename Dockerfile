@@ -1,3 +1,5 @@
+ARG GRETEL_ENABLE=1
+
 FROM alpine:3.20.3
 
 # TODO maybe use alpine directly instead? https://hub.docker.com/_/alpine
@@ -49,7 +51,8 @@ RUN \
     --with-stream_ssl_module \
     --with-stream_realip_module \
     --with-http_slice_module \
-    --with-http_v2_module && \
+    --with-http_v2_module \
+    --gretel-enable="$GRETEL_ENABLE" && \
   make -j16 && \
   make install && \
   sed -i -e 's/#access_log  logs\/access.log  main;/access_log \/dev\/stdout;/' -e 's/#error_log  logs\/error.log  notice;/error_log stderr notice;/' /etc/nginx/nginx.conf && \

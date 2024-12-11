@@ -79,7 +79,13 @@ typedef struct {
 
 #define ngx_http_get_module_ctx(r, module)  (r)->ctx[module.ctx_index]
 #if GRETEL_ENABLE
+
+#if 0
 # define ngx_http_set_ctx(r, c, module)      {r->ctx[module.ctx_index] = c; gretel_bump(r->connection->read->log, mkgretel(0,0,0,0), &r->connection->read->gretel_request, &r->connection->read->gretel_response);}
+#else
+# define ngx_http_set_ctx(r, c, module)      r->ctx[module.ctx_index] = c;
+#endif
+
 #else
 # define ngx_http_set_ctx(r, c, module)      r->ctx[module.ctx_index] = c;
 #endif

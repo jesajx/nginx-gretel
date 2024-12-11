@@ -92,6 +92,8 @@ if [ ".$NGX_ERROR_LOG_PATH" = "." ]; then
     have=NGX_ERROR_LOG_STDERR . auto/have
 fi
 
+have=GRETEL_ENABLE value="$GRETEL_ENABLE" . auto/define
+
 have=NGX_HTTP_LOG_PATH value="\"$NGX_HTTP_LOG_PATH\"" . auto/define
 have=NGX_HTTP_CLIENT_TEMP_PATH value="\"$NGX_HTTP_CLIENT_TEMP_PATH\""
 . auto/define

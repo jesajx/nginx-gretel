@@ -520,7 +520,7 @@ ngx_http_wait_request_handler(ngx_event_t *rev) // TODO
     }
 
 #if GRETEL_ENABLE
-    gretel_bump(rev->log, mkgretel(0,0,0,0), &rev->gretel_request, &rev->gretel_response);
+    //gretel_bump(rev->log, mkgretel(0,0,0,0), &rev->gretel_request, &rev->gretel_response);
 #endif
 
     rev->handler = ngx_http_process_request_line;
@@ -1495,6 +1495,7 @@ ngx_http_process_request_headers(ngx_event_t *rev)
             if (strcmp((const char*)h->key.data, GRETEL_HTTP_HEADER) == 0) {
                 gretel_t foreign_input_grtl = {};
                 if (gretel_parse_header_value(h->value.data, h->value.data + h->value.len, &foreign_input_grtl) == 0) {
+
                     gretel_bump(rev->log, foreign_input_grtl, &rev->gretel_request, &rev->gretel_response);
 
                     ngx_uint_t merge_grtl_hex_len = 64;
@@ -1518,12 +1519,12 @@ ngx_http_process_request_headers(ngx_event_t *rev)
                     h->value.len = merge_grtl_hex_len;
 
 #if GRETEL_ENABLE
-                    gretel_bump(rev->log, mkgretel(0,0,0,0), &rev->gretel_request, &rev->gretel_response);
+                    //gretel_bump(rev->log, mkgretel(0,0,0,0), &rev->gretel_request, &rev->gretel_response);
                     gretel_found = 1;
 #endif
                 } else {
 #if GRETEL_ENABLE
-                    gretel_bump(rev->log, mkgretel(0,0,0,0), &rev->gretel_request, &rev->gretel_response);
+                    //gretel_bump(rev->log, mkgretel(0,0,0,0), &rev->gretel_request, &rev->gretel_response);
 #endif
                     ngx_log_error(NGX_LOG_ALERT, c->log, 0,
                                 "invalid gretel: \"%s\"",
@@ -1602,7 +1603,7 @@ ngx_http_process_request_headers(ngx_event_t *rev)
 
 #if GRETEL_ENABLE
     if (!gretel_found) {
-        gretel_bump(rev->log, mkgretel(0,0,0,0), &rev->gretel_request, &rev->gretel_response);
+        //gretel_bump(rev->log, mkgretel(0,0,0,0), &rev->gretel_request, &rev->gretel_response);
     }
 #endif
 
