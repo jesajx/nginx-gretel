@@ -1,6 +1,7 @@
-ARG GRETEL_ENABLE=1
 
 FROM alpine:3.20.3
+
+ARG GRETEL_ENABLE=1
 
 # TODO maybe use alpine directly instead? https://hub.docker.com/_/alpine
 # TODO maybe base on official dockerfile instead? https://github.com/nginxinc/docker-nginx/blob/6a4c0cb4ac7e53bbbe473df71b61a5bf9f95252f/mainline/debian/Dockerfile
@@ -10,6 +11,7 @@ ENV NGINX_VERSION=1.27.1
 COPY . /tmp/nginx-src
 
 RUN \
+  echo "GRETEL_ENABLE=$GRETEL_ENABLE" && \
   build_pkgs="build-base linux-headers openssl-dev pcre-dev wget zlib-dev" && \
   runtime_pkgs="ca-certificates openssl pcre zlib tzdata git" && \
   apk --no-cache add ${build_pkgs} ${runtime_pkgs} && \
