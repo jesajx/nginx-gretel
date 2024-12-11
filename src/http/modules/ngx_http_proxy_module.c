@@ -1976,8 +1976,6 @@ ngx_http_proxy_process_header(ngx_http_request_t *r)
             }
 #endif
 
-            // TODO check gretel here
-
             if (h->key.len == r->lowcase_index) {
                 ngx_memcpy(h->lowcase_key, r->lowcase_header, h->key.len);
 

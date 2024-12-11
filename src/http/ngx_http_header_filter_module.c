@@ -311,7 +311,9 @@ ngx_http_header_filter(ngx_http_request_t *r)
     }
 
 #if GRETEL_ENABLE
-    len += sizeof("gretel: 0000000000000000000000000000000000000000000000000000000000000000" CRLF) -1;
+    if (r->headers_out.gretel.a != 0) {
+        len += sizeof("gretel: 0000000000000000000000000000000000000000000000000000000000000000" CRLF) -1;
+    }
 #endif
 
     if (r->headers_out.content_length == NULL
@@ -506,7 +508,7 @@ ngx_http_header_filter(ngx_http_request_t *r)
     }
 
 #if GRETEL_ENABLE
-    if (1) { // TODO gretel
+    if (r->headers_out.gretel.a != 0) {
         b->last = ngx_cpymem(b->last, "gretel: ", sizeof("gretel: ") - 1);
 
         gretel_format(r->headers_out.gretel, b->last);

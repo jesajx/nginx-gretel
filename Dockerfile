@@ -8,13 +8,15 @@ ARG GRETEL_ENABLE=1
 
 ENV NGINX_VERSION=1.27.1
 
+RUN \
+  build_pkgs="build-base linux-headers openssl-dev pcre-dev wget zlib-dev" && \
+  runtime_pkgs="ca-certificates openssl pcre zlib tzdata git" && \
+  apk --no-cache add ${build_pkgs} ${runtime_pkgs}
+
 COPY . /tmp/nginx-src
 
 RUN \
   echo "GRETEL_ENABLE=$GRETEL_ENABLE" && \
-  build_pkgs="build-base linux-headers openssl-dev pcre-dev wget zlib-dev" && \
-  runtime_pkgs="ca-certificates openssl pcre zlib tzdata git" && \
-  apk --no-cache add ${build_pkgs} ${runtime_pkgs} && \
   cd /tmp/nginx-src && \
   rm -rf Makefile objs && \
   ./auto/configure \

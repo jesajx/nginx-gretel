@@ -913,10 +913,14 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
                 ngx_event_t *ev = rev;
 #if GRETEL_ENABLE
                 if (0) {
-                    gretel_bump(cycle->log, cycle->cycle_req_gretel, &ev->gretel_request, &ev->gretel_response);
+                    //gretel_bump(cycle->log, cycle->cycle_req_gretel, &ev->gretel_request, &ev->gretel_response);
                 } else {
-                    gretel_setg_resp(ev->gretel_request);
-                    gretel_setg_req(ev->gretel_response);
+                    if (ev->gretel_request.a == 0) {
+                        gretel_bump(cycle->log, cycle->cycle_resp_gretel, &ev->gretel_request, &ev->gretel_response);
+                    } else {
+                        gretel_setg_resp(ev->gretel_response);
+                        gretel_setg_req(ev->gretel_request);
+                    }
                 }
 #endif
 
@@ -957,11 +961,17 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
             } else {
                 ngx_event_t *ev = wev;
 #if GRETEL_ENABLE
+                // TODO link rev to wev here?
                 if (0) {
-                    gretel_bump(cycle->log, cycle->cycle_req_gretel, &ev->gretel_request, &ev->gretel_response);
+                    //gretel_bump(cycle->log, cycle->cycle_req_gretel, &ev->gretel_request, &ev->gretel_response);
                 } else {
-                    gretel_setg_resp(ev->gretel_request);
-                    gretel_setg_req(ev->gretel_response);
+                    if (ev->gretel_request.a == 0) {
+                        gretel_bump(cycle->log, cycle->cycle_resp_gretel, &ev->gretel_request, &ev->gretel_response);
+                    } else {
+                        gretel_setg_resp(ev->gretel_response);
+                        gretel_setg_req(ev->gretel_request);
+                        gretel_bump(cycle->log, rev->gretel_request, &ev->gretel_request, &ev->gretel_response);
+                    }
                 }
 #endif
 

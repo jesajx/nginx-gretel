@@ -1503,7 +1503,7 @@ ngx_http_process_request_headers(ngx_event_t *rev)
                     u_char *np = merge_grtl_hex + merge_grtl_hex_len;
                     *np = '\0';
 
-                    gretel_t merge_node = rev->gretel_request;
+                    gretel_t merge_node = rev->gretel_response;
                     uint64_t xs[] = {merge_node.d, merge_node.c, merge_node.b, merge_node.a};
 
                     for (ngx_uint_t xi = 0; xi < 4; ++xi) {

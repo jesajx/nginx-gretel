@@ -234,68 +234,12 @@ ngx_event_accept(ngx_event_t *ev)
         wev = c->write;
 
 #if GRETEL_ENABLE
-        if (rev->gretel_request.a == 0) {
-            gretel_t ev_start = gretel_random();
-            gretel_t ev_end = gretel_random();
-            gretel_setg_resp(ev_end);
-            gretel_setg_req(ev_start);
-            gretel_node(ev->log, ev_start);
-            gretel_node(ev->log, ev_end);
-            gretel_link(ev->log, ev_start, ev_end);
-            gretel_link(ev->log, ev->gretel_request, ev_start);
-            rev->gretel_request = ev_start;
-            rev->gretel_response = ev_end;
-        } else {
-            //gretel_t old_start = rev->gretel_request;
-            gretel_t old_end = rev->gretel_response;
-            gretel_t ev_merge = gretel_random();
-            gretel_t new_start = ev_merge;
-            gretel_t new_end = gretel_random();
-
-            gretel_setg_resp(new_end);
-            gretel_setg_req(new_start);
-
-            rev->gretel_request = new_start;
-            rev->gretel_response = new_end;
-
-            gretel_node(ev->log, new_start);
-            gretel_node(ev->log, new_end);
-
-            gretel_link(ev->log, new_start, new_end);
-            gretel_link(ev->log, old_end, ev_merge);
-            gretel_link(ev->log, ev->gretel_request, ev_merge);
+        // NOTE: gretels should already have been initialized in ngx_event_process_init
+        if (rev) {
+            gretel_bump(c->log, mkgretel(0,0,0,0), &rev->gretel_request, &rev->gretel_response);
         }
-
-        if (wev->gretel_request.a == 0) {
-            gretel_t ev_start = gretel_random();
-            gretel_t ev_end = gretel_random();
-            gretel_setg_resp(ev_end);
-            gretel_setg_req(ev_start);
-            gretel_node(ev->log, ev_start);
-            gretel_node(ev->log, ev_end);
-            gretel_link(ev->log, ev_start, ev_end);
-            gretel_link(ev->log, ev->gretel_request, ev_start);
-            wev->gretel_request = ev_start;
-            wev->gretel_response = ev_end;
-        } else {
-            //gretel_t old_start = wev->gretel_request;
-            gretel_t old_end = wev->gretel_response;
-            gretel_t ev_merge = gretel_random();
-            gretel_t new_start = ev_merge;
-            gretel_t new_end = gretel_random();
-
-            gretel_setg_resp(new_end);
-            gretel_setg_req(new_start);
-
-            wev->gretel_request = new_start;
-            wev->gretel_response = new_end;
-
-            gretel_node(ev->log, new_start);
-            gretel_node(ev->log, new_end);
-
-            gretel_link(ev->log, new_start, new_end);
-            gretel_link(ev->log, old_end, ev_merge);
-            gretel_link(ev->log, ev->gretel_request, ev_merge);
+        if (wev) {
+            gretel_bump(c->log, mkgretel(0,0,0,0), &wev->gretel_request, &wev->gretel_response);
         }
 #endif
 

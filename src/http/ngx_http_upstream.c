@@ -3020,7 +3020,7 @@ ngx_http_upstream_send_response(ngx_http_request_t *r, ngx_http_upstream_t *u)
     ngx_http_core_loc_conf_t  *clcf;
 
 #if GRETEL_ENABLE
-    r->headers_out.gretel = r->connection->read->gretel_request; // TODO vs response? // TODO vs set in trailer?
+    //r->headers_out.gretel = r->connection->read->gretel_request; // TODO vs response? // TODO vs set in trailer?
 #endif
 
     rc = ngx_http_send_header(r);
