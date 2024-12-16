@@ -1518,19 +1518,17 @@ ngx_http_process_request_headers(ngx_event_t *rev)
                     h->value.data = merge_grtl_hex;
                     h->value.len = merge_grtl_hex_len;
 
-#if GRETEL_ENABLE
                     //gretel_bump(rev->log, mkgretel(0,0,0,0), &rev->gretel_request, &rev->gretel_response);
                     gretel_found = 1;
-#endif
                 } else {
-#if GRETEL_ENABLE
                     //gretel_bump(rev->log, mkgretel(0,0,0,0), &rev->gretel_request, &rev->gretel_response);
-#endif
                     ngx_log_error(NGX_LOG_ALERT, c->log, 0,
                                 "invalid gretel: \"%s\"",
                                 h->value.data);
                 }
             }
+#else
+        gretel_nonode(rev->log);
 #endif
 
             h->lowcase_key = ngx_pnalloc(r->pool, h->key.len);

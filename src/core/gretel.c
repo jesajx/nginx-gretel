@@ -24,6 +24,16 @@ void gretel_setg_resp(gretel_t grtl) {
     gretel_set_resp(grtl.a, grtl.b, grtl.c, grtl.d);
 }
 
+void gretel_do_nonode(ngx_log_t *log, const char *filename, const char *lineno) {
+    if (1) {
+        ngx_log_error(NGX_LOG_ALERT, log, 0, "gp=%ul pid=%ul file=%s lineno=%s",
+                      GRETEL_PID,
+                      ngx_pid,
+                      (u_char*)filename,
+                      (u_char*)lineno
+                     );
+    }
+}
 
 void gretel_do_node(ngx_log_t *log, gretel_t node, const char *filename, const char *lineno) {
     if (1) {

@@ -404,6 +404,9 @@ main(int argc, char *const *argv)
     gretel_node(cycle->log, gretel_master_start);
     gretel_node(cycle->log, gretel_master_end);
     gretel_link(cycle->log, gretel_master_start, gretel_master_end);
+#else
+    gretel_nonode(cycle->log);
+    gretel_nonode(cycle->log);
 #endif
 
     if (ngx_process == NGX_PROCESS_SINGLE) {

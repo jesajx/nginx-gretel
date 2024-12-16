@@ -1974,6 +1974,8 @@ ngx_http_proxy_process_header(ngx_http_request_t *r)
                                 h->value.data);
                 }
             }
+#else
+    gretel_nonode(r->connection->read->log);
 #endif
 
             if (h->key.len == r->lowcase_index) {

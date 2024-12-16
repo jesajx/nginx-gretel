@@ -725,6 +725,9 @@ ngx_worker_process_cycle(ngx_cycle_t *cycle, void *data)
     gretel_link(cycle->log, parent_cycle_resp, gretel_worker_start);
     gretel_link(cycle->log, gretel_worker_start, gretel_worker_end);
     //gretel_link(cycle->log, cycle->cycle_resp_gretel, parent_cycle_resp);
+#else
+    gretel_nonode(cycle->log);
+    gretel_nonode(cycle->log);
 #endif
 
     ngx_setproctitle("worker process");

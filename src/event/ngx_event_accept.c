@@ -241,6 +241,9 @@ ngx_event_accept(ngx_event_t *ev)
         if (wev) {
             gretel_bump(c->log, mkgretel(0,0,0,0), &wev->gretel_request, &wev->gretel_response);
         }
+#else
+        gretel_nonode(c->log);
+        gretel_nonode(c->log);
 #endif
 
         wev->ready = 1;

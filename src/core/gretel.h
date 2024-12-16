@@ -40,6 +40,9 @@ gretel_t gretel_random();
 void gretel_do_node(ngx_log_t *log, gretel_t node, const char *filename, const char *lineno);
 #define gretel_node(log, node) gretel_do_node(log, node, GRETEL_FILENAME(), GRETEL_LINENO())
 
+void gretel_do_nonode(ngx_log_t *log, const char *filename, const char *lineno);
+#define gretel_nonode(log) gretel_do_nonode(log, GRETEL_FILENAME(), GRETEL_LINENO())
+
 
 void gretel_do_bump(ngx_log_t *log, gretel_t cur, gretel_t *req, gretel_t *resp, const char *filename, const char *lineno);
 #define gretel_bump(log, cur, req, resp) gretel_do_bump(log, cur, req, resp, GRETEL_FILENAME(), GRETEL_LINENO())

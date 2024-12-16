@@ -882,6 +882,11 @@ ngx_http_log_status(ngx_http_request_t *r, u_char *buf, ngx_http_log_op_t *op)
         status = 0;
     }
 
+#if ! GRETEL_ENABLED
+    // To compensate for not logging the gretel_bump before gretel_cur.
+    gretel_nonode(r->connection->read->log);
+#endif
+
     return ngx_sprintf(buf, "%03ui", status);
 }
 

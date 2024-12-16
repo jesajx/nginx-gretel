@@ -771,11 +771,15 @@ ngx_event_process_init(ngx_cycle_t *cycle)
         rev[i].instance = 1;
     }
 
+    if (cycle && rev && rev->log) {
 #if GRETEL_ENABLED
-    if (cycle && rev && rev->log && rev->gretel_request.a == 0) {
-        gretel_bump(rev->log, cycle->cycle_req_gretel, &rev->gretel_request, &rev->gretel_response);
-    }
+        if (rev->gretel_request.a == 0) {
+            gretel_bump(rev->log, cycle->cycle_req_gretel, &rev->gretel_request, &rev->gretel_response);
+        }
+#else
+        gretel_nonode(rev->log);
 #endif
+    }
 
     cycle->write_events = ngx_alloc(sizeof(ngx_event_t) * cycle->connection_n,
                                     cycle->log);
@@ -788,11 +792,15 @@ ngx_event_process_init(ngx_cycle_t *cycle)
         wev[i].closed = 1;
     }
 
+    if (cycle && wev && wev->log) {
 #if GRETEL_ENABLED
-    if (cycle && wev && wev->log && wev->gretel_request.a == 0) {
-        gretel_bump(wev->log, cycle->cycle_req_gretel, &wev->gretel_request, &wev->gretel_response);
-    }
+        if (wev->gretel_request.a == 0) {
+            gretel_bump(wev->log, cycle->cycle_req_gretel, &wev->gretel_request, &wev->gretel_response);
+        }
+#else
+        gretel_nonode(wev->log);
 #endif
+    }
 
     i = cycle->connection_n;
     next = NULL;
